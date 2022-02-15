@@ -40,6 +40,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //routes
+app.all('*', function(req, res, next){
+  res.set('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);     
+  if ('OPTIONS' == req.method) return res.send(204);
+  next();
+});
 app.use(routesAuth);
 app.use(routesInfoAdmin);
 app.use(routesInfoUser);
