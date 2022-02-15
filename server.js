@@ -24,8 +24,10 @@ app.use(
     allowedHeaders: true,
   })*/
   cors({
+    origin: "https://rollingvet.netlify.app",
     credentials: true,
     allowedHeaders: true,
+    methods: "GET,PUT,POST,DELETE",
   })
 );
 app.use(morgan("dev"));
