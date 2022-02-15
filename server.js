@@ -5,7 +5,6 @@ const morgan = require("morgan");
 const passport = require("passport");
 const session = require("express-session");
 const cors = require("cors");
-const cookieSession = require('cookie-session');
 
 const app = express();
 const routesAuth = require("./routes/auth");
@@ -20,14 +19,10 @@ app.set("port", process.env.PORT || 5000);
 //middlewares
 app.use(
   cors({
-    origin: ["https://rollingvet.netlify.app","http://localhost:3000"],
+    origin: ["https://rollingvet.netlify.app","http://rollingvet.netlify.app","http://localhost:3000"],
     credentials: true,
   })
 );
-app.use(cookieSession({
-  name: 'session',
-  keys: ['key1', 'key2']
-}));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -36,7 +31,6 @@ app.use(
     secret: process.env.SECRET_KEY,
     resave: false,
     saveUninitialized: false,
-    cookie: {secure: false}
   })
 );
 app.use(passport.initialize());
