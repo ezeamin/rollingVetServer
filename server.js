@@ -19,7 +19,7 @@ app.set("port", process.env.PORT || 5000);
 //middlewares
 app.use(
   cors({
-    origin: ["https://rollingvet.netlify.app","http://rollingvet.netlify.app","http://localhost:3000"],
+    origin: ["https://rollingvet.netlify.app","https://rollingvet.netlify.app/login","http://localhost:3000"],
     credentials: true,
   })
 );
