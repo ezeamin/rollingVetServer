@@ -31,6 +31,10 @@ app.use(
     secret: process.env.SECRET_KEY,
     resave: false,
     saveUninitialized: false,
+    cookie : {
+      sameSite: 'none',
+      secure: true
+    }
   })
 );
 app.use(passport.initialize());
