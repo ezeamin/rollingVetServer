@@ -18,16 +18,12 @@ app.set("port", process.env.PORT || 5000);
 
 //middlewares
 app.use(
-  /*cors({
-    origin: "https://rollingvet.netlify.app",
-    credentials: true,
-    allowedHeaders: true,
-  })*/
   cors({
     origin: "https://rollingvet.netlify.app",
     credentials: true,
     allowedHeaders: true,
     methods: "GET,PUT,POST,DELETE",
+    preflightContinue: false,
   })
 );
 app.use(morgan("dev"));
