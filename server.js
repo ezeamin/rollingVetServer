@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const passport = require("passport");
 const session = require("express-session");
 const cors = require("cors");
+const cookieSession = require('cookie-session');
 
 const app = express();
 const routesAuth = require("./routes/auth");
@@ -23,6 +24,10 @@ app.use(
     credentials: true,
   })
 );
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
