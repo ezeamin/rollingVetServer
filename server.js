@@ -19,11 +19,8 @@ app.set("port", process.env.PORT || 5000);
 //middlewares
 app.use(
   cors({
-    origin: "https://rollingvet.netlify.app",
-    //origin: "*",
+    origin: ["https://rollingvet.netlify.app","http://localhost:3000"],
     credentials: true,
-    allowedHeaders: true,
-    methods: "GET,PUT,POST,DELETE,OPTIONS",
   })
 );
 app.use(morgan("dev"));
@@ -40,11 +37,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //routes
-app.all('*', function(req, res, next){
-  res.set('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);     
-  if ('OPTIONS' == req.method) return res.send(204);
-  next();
-});
 app.use(routesAuth);
 app.use(routesInfoAdmin);
 app.use(routesInfoUser);

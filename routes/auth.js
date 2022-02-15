@@ -27,7 +27,7 @@ router.get("/api/error", (req, res) => {
 });
 
 router.get("/api/success", (req, res) => {
-  res.status(200).json({ message: "Success", code: 200 });
+  res.status(200).json({ message: "Success", code: 200});
 });
 
 router.delete("/api/logout", (req, res) => {
