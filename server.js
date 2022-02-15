@@ -23,7 +23,7 @@ app.use(
     origin: "*",
     credentials: true,
     allowedHeaders: true,
-    methods: "GET,PUT,POST,DELETE",
+    methods: "GET,PUT,POST,DELETE,OPTIONS",
   })
 );
 app.use(morgan("dev"));
