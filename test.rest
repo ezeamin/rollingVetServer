@@ -1,0 +1,11 @@
+POST https://rollingvet.herokuapp.com/api/signup
+content-type: application/json
+
+{
+    "email": "ezea2002@hotmail.com",
+    "password": "123456aA",
+}
+
+###
+
+GET https://rollingvet.herokuapp.com/api/auth
