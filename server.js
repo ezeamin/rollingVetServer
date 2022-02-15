@@ -23,7 +23,10 @@ app.use(
     credentials: true,
     allowedHeaders: true,
   })*/
-  cors()
+  cors({
+    credentials: true,
+    allowedHeaders: true,
+  })
 );
 app.use(morgan("dev"));
 app.use(express.json());
