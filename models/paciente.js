@@ -28,7 +28,6 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    maxlength: 20,
     required: true,
   },
   nombre: {

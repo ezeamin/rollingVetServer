@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 
+const validar = require("../helpers/validar");
+
 const DbPacientes = require("../models/paciente");
 const DbCitas = require("../models/cita");
 const DbFechas = require("../models/fechas");
@@ -111,6 +113,11 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
     avatar: req.body.avatar,
   };
 
+  if(!validar(datos)) res.status(500).json({
+    ok: false,
+    mensaje: "Datos inválidos",
+  });
+
   DbPacientes.findOneAndUpdate(
     { dni: req.body.dni },
     datos,
@@ -208,6 +215,11 @@ router.delete(
 );
 
 router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
+  if(!validar(req.body)) res.status(500).json({
+    ok: false,
+    mensaje: "Datos inválidos",
+  });
+
   DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
     if (err) {
       res.status(500).json({
@@ -294,6 +306,11 @@ router.post("/api/citas", isAuthenticated, (req, res) => {
     comentarios: req.body.comentarios,
   });
 
+  if(!validar(cita)) res.status(500).json({
+    ok: false,
+    mensaje: "Datos inválidos",
+  });
+
   DbCitas.create(cita, (err, cita) => {
     if (err) {
       res.status(500).json({
@@ -326,6 +343,11 @@ router.get("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
 });
 
 router.put("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
+  if(!validar(req.body)) res.status(500).json({
+    ok: false,
+    mensaje: "Datos inválidos",
+  });
+  
   DbCitas.findOneAndUpdate(
     { codigoCita: req.params.codigoCita },
     req.body,
@@ -460,6 +482,11 @@ router.get("/api/precios", (req, res) => {
 });
 
 router.put("/api/precios", isAuthenticated, isAdmin, (req, res) => {
+  if(!validar(req.body)) res.status(500).json({
+    ok: false,
+    mensaje: "Datos inválidos",
+  });
+  
   DbPrecios.findOneAndUpdate(
     { plan: req.body.plan },
     req.body,

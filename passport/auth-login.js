@@ -42,20 +42,27 @@ passport.use(
           code: 1,
         });
       } else {
-        const user = new User({
-          email: req.body.email,
-          password: req.body.password,
-          nombre: req.body.nombre,
-          apellido: req.body.apellido,
-          genero: req.body.genero,
-          dni: req.body.dni,
-          avatar: req.body.avatar,
-          mascotas: [],
-          incorporacion: new Date(),
-        });
-        user.password = user.encryptPassword(password);
-        await user.save();
-        return done(null, { message: "Registro exitoso.", code: 200 });
+        try {
+          const user = new User({
+            email: req.body.email,
+            password: req.body.password,
+            nombre: req.body.nombre,
+            apellido: req.body.apellido,
+            genero: req.body.genero,
+            dni: req.body.dni,
+            avatar: req.body.avatar,
+            mascotas: [],
+            incorporacion: req.body.incorporacion,
+          });
+          user.password = user.encryptPassword(password);
+          await user.save();
+          return done(null, { message: "Registro exitoso.", code: 200 });
+        } catch (error) {
+          return done(null, false, {
+            message: "Error al registrar.",
+            code: 500,
+          });
+        }
       }
     }
   )

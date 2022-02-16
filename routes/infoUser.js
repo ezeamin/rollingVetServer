@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
+const validar = require("../helpers/validar");
+
 const DbPacientes = require("../models/paciente");
 const DbCitas = require("../models/cita");
 
@@ -37,6 +39,11 @@ router.get("/api/user/pacientes/mascotas/:dni", isAuthenticated, (req, res) => {
 });
 
 router.put("/api/user/guardarPlan/:dni/:codigoMascota", isAuthenticated, (req, res) => {
+  if(!validar(req.body)) res.status(500).json({
+    ok: false,
+    mensaje: "Datos inválidos",
+  });
+
   DbPacientes.findOne({ dni: req.params.dni }, (err, doc) => {
     if (doc) {
       let mascota = doc.mascotas.find(mascota => mascota.codigoMascota === req.params.codigoMascota);

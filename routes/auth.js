@@ -2,8 +2,15 @@ const express = require("express");
 const passport = require("passport");
 const router = express.Router();
 
+const validar = require("../helpers/validar");
+
 router.post("/api/signup", (req, res) => {
-  console.log(req.body);
+  if(!validar(req.body)) res.status(500).json({
+    ok: false,
+    code: 500,
+    mensaje: "Datos inválidos",
+  });
+
   passport.authenticate("local-signup", (err, user, info) => {
     if (err) {
       return res.status(500).json(err);
