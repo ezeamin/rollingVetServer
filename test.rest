@@ -9,3 +9,7 @@ content-type: application/json
 ###
 
 GET https://rollingvet.herokuapp.com/api/auth
+
+
+###
+GET http://localhost:5000/api/citasProgramadas/43706393
