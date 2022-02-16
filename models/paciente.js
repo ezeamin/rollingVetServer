@@ -29,7 +29,6 @@ userSchema.methods.encryptPassword = (password) => {
 };
 
 userSchema.methods.comparePassword = (password,password2) =>{
-  //console.log("pass: " + password +", this.pass: "+password2);
   return bcrypt.compareSync(password, password2);
 };
 

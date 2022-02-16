@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 const DbPacientes = require("../models/paciente");
 const DbCitas = require("../models/cita");
@@ -35,8 +35,8 @@ router.get("/api/qty", isAuthenticated, (req, res) => {
     let pacientes = count;
     if (pacientes != 0) pacientes--;
 
-    if(err){
-      res.status(500).json({ok: false})
+    if (err) {
+      res.status(500).json({ ok: false });
       return;
     }
 
@@ -101,7 +101,7 @@ router.delete("/api/pacientes/:dni", isAuthenticated, (req, res) => {
 });
 
 router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
-  let datos ={
+  let datos = {
     dni: req.body.dni,
     nombre: req.body.nombre,
     apellido: req.body.apellido,
@@ -109,7 +109,7 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10),
     avatar: req.body.avatar,
-  }
+  };
 
   DbPacientes.findOneAndUpdate(
     { dni: req.body.dni },
@@ -131,45 +131,81 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
   );
 });
 
-router.get("/api/pacientes/:dni/:codigoMascota", isAuthenticated, (req, res) => {
-  DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      const mascota = paciente.mascotas.find(
-        (mascota) => mascota.codigoMascota === req.params.codigoMascota
-      );
-      res.status(200).json({
-        ok: true,
-        mascota,
-      });
-    }
-  });
-});
-
-router.delete("/api/pacientes/:dni/:codigoMascota", isAuthenticated, (req, res) => {
-  DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      const mascota = paciente.mascotas.find(
-        (mascota) => mascota.codigoMascota === req.params.codigoMascota
-      );
-      if (mascota) {
-        paciente.mascotas.splice(paciente.mascotas.indexOf(mascota), 1);
-        paciente.save();
+router.get(
+  "/api/pacientes/:dni/:codigoMascota",
+  isAuthenticated,
+  (req, res) => {
+    DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
+      if (err) {
+        res.status(500).json({
+          ok: false,
+          err,
+        });
+      } else {
+        const mascota = paciente.mascotas.find(
+          (mascota) => mascota.codigoMascota === req.params.codigoMascota
+        );
+        res.status(200).json({
+          ok: true,
+          mascota,
+        });
       }
+    });
+  }
+);
 
-      res.status(200).json({ok: true});
-    }
-  });
-});
+router.delete(
+  "/api/pacientes/:dni/:codigoMascota",
+  isAuthenticated,
+  (req, res) => {
+    DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
+      if (err) {
+        res.status(500).json({
+          ok: false,
+          err,
+        });
+      } else {
+        const mascota = paciente.mascotas.find(
+          (mascota) => mascota.codigoMascota === req.params.codigoMascota
+        );
+        if (mascota) {
+          paciente.mascotas.splice(paciente.mascotas.indexOf(mascota), 1);
+          paciente.save();
+
+          DbCitas.find(
+            { codigoMascota: req.params.codigoMascota, atendido: false },
+            (err, citas) => {
+              if (err) {
+                res.status(500).json({
+                  ok: false,
+                  err,
+                });
+              } else {
+                citas.forEach((cita) => {
+                  const fecha = cita.fecha;
+                  const hora = cita.hora;
+
+                  DbFechas.findOne({ fecha: fecha }, (err, doc) => {
+                    if (doc) {
+                      doc.ocupados = doc.ocupados.filter(
+                        (ocupado) => ocupado !== hora
+                      );
+                      doc.save();
+                    }
+                  });
+
+                  cita.remove();
+                });
+              }
+            }
+          );
+        }
+
+        res.status(200).json({ ok: true });
+      }
+    });
+  }
+);
 
 router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
   DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
@@ -193,7 +229,7 @@ router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
         );
 
         let prevPlan = paciente.mascotas[mascotaIndex].plan;
-        if(mascota.plan === "") mascota.plan = prevPlan; //editado desde user, no se carga plan y se mantiene el anterior
+        if (mascota.plan === "") mascota.plan = prevPlan; //editado desde user, no se carga plan y se mantiene el anterior
 
         paciente.mascotas[mascotaIndex] = mascota;
       }
@@ -247,8 +283,8 @@ router.post("/api/citas", isAuthenticated, (req, res) => {
     hora: req.body.hora,
     atendido: false,
     codigoMascota: req.body.codigoMascota,
-    paciente:{
-      dni: req.body.paciente.dni,
+    dni: req.body.dni,
+    paciente: {
       nombre: req.body.paciente.nombre,
       apellido: req.body.paciente.apellido,
       avatar: req.body.paciente.avatar,
@@ -259,13 +295,12 @@ router.post("/api/citas", isAuthenticated, (req, res) => {
   });
 
   DbCitas.create(cita, (err, cita) => {
-    if(err){
+    if (err) {
       res.status(500).json({
         ok: false,
         err,
       });
-    }
-    else{
+    } else {
       res.status(200).json({
         ok: true,
         cita,
@@ -291,43 +326,86 @@ router.get("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
 });
 
 router.put("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
-  DbCitas.findOneAndUpdate( { codigoCita: req.params.codigoCita }, req.body, { new: true }, (err, cita) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      res.status(200).json({
-        ok: true,
-      });
+  DbCitas.findOneAndUpdate(
+    { codigoCita: req.params.codigoCita },
+    req.body,
+    { new: true },
+    (err, cita) => {
+      if (err) {
+        res.status(500).json({
+          ok: false,
+          err,
+        });
+      } else {
+        res.status(200).json({
+          ok: true,
+        });
+      }
     }
-  });
+  );
+});
+
+router.delete("/api/citas/paciente/:dni", isAuthenticated, (req, res) => {
+  DbCitas.find(
+    {
+      dni: req.params.dni,
+      atendido: false,
+    },
+    (err, docs) => {
+      if (err) {
+        res.status(500).json({
+          ok: false,
+          err,
+        });
+      } else {
+        docs.forEach((cita) => {
+          const fecha = cita.fecha;
+          const hora = cita.hora;
+
+          DbFechas.findOne({ fecha: fecha }, (err, doc) => {
+            if (doc) {
+              doc.ocupados = doc.ocupados.filter((ocupado) => ocupado !== hora);
+              doc.save();
+            }
+          });
+
+          cita.remove();
+        });
+
+        res.status(200).json({
+          ok: true,
+        });
+      }
+    }
+  );
 });
 
 router.delete("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
-  DbCitas.findOneAndDelete({ codigoCita: req.params.codigoCita }, (err, cita) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      const fecha = cita.fecha;
-      const hora = cita.hora;
+  DbCitas.findOneAndDelete(
+    { codigoCita: req.params.codigoCita },
+    (err, cita) => {
+      if (err) {
+        res.status(500).json({
+          ok: false,
+          err,
+        });
+      } else {
+        const fecha = cita.fecha;
+        const hora = cita.hora;
 
-      DbFechas.findOne({ fecha: fecha }, (err, doc) => {
-        if(doc){
-          doc.ocupados = doc.ocupados.filter((ocupado) => ocupado !== hora);
-          doc.save();
-        }
-      });
+        DbFechas.findOne({ fecha: fecha }, (err, doc) => {
+          if (doc) {
+            doc.ocupados = doc.ocupados.filter((ocupado) => ocupado !== hora);
+            doc.save();
+          }
+        });
 
-      res.status(200).json({
-        ok: true,
-      });
+        res.status(200).json({
+          ok: true,
+        });
+      }
     }
-  });
+  );
 });
 
 router.get("/api/fechas/:fecha", isAuthenticated, (req, res) => {
@@ -344,15 +422,14 @@ router.get("/api/fechas/:fecha", isAuthenticated, (req, res) => {
       });
     }
   });
-})
+});
 
 router.put("/api/fechas", isAuthenticated, (req, res) => {
-  DbFechas.findOne({fecha: req.body.fecha}, (err, doc) => {
-    if(doc){
+  DbFechas.findOne({ fecha: req.body.fecha }, (err, doc) => {
+    if (doc) {
       doc.ocupados.push(req.body.hora);
       doc.save();
-    }
-    else{
+    } else {
       let doc = new DbFechas({
         fecha: req.body.fecha,
         ocupados: [req.body.hora],
@@ -361,7 +438,7 @@ router.put("/api/fechas", isAuthenticated, (req, res) => {
     }
   });
 
-  res.status(200).json({ok: true, datos: req.body});
+  res.status(200).json({ ok: true, datos: req.body });
 });
 
 //precios
@@ -380,21 +457,26 @@ router.get("/api/precios", (req, res) => {
       });
     }
   });
-})
+});
 
-router.put("/api/precios", isAuthenticated, isAdmin,(req, res) => {
-  DbPrecios.findOneAndUpdate({plan: req.body.plan}, req.body, { new: true }, (err, precios) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      res.status(200).json({
-        ok: true,
-      });
+router.put("/api/precios", isAuthenticated, isAdmin, (req, res) => {
+  DbPrecios.findOneAndUpdate(
+    { plan: req.body.plan },
+    req.body,
+    { new: true },
+    (err, precios) => {
+      if (err) {
+        res.status(500).json({
+          ok: false,
+          err,
+        });
+      } else {
+        res.status(200).json({
+          ok: true,
+        });
+      }
     }
-  });
-})
+  );
+});
 
 module.exports = router;

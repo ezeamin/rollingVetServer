@@ -1,9 +1,9 @@
-POST https://rollingvet.herokuapp.com/api/signup
+POST https://rollingvet.herokuapp.com/api/signin
 content-type: application/json
 
 {
     "email": "ezea2002@hotmail.com",
-    "password": "123456aA",
+    "password": "123456aA"
 }
 
 ###
