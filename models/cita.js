@@ -2,14 +2,34 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const citaSchema = new Schema({
-  codigoCita: String,
-  dni: String,
+  codigoCita: {
+    type: String,
+    unique: true,
+    required: true,
+  },
+  dni: {
+    type: String,
+    maxlength: 8,
+    required: true,
+  },
   paciente: {
-    nombre: String,
-    apellido: String,
+    nombre:  {
+      type: String,
+      maxlength: 20,
+      required: true,
+    },
+    apellido:  {
+      type: String,
+      maxlength: 20,
+      required: true,
+    },
     avatar: String,
   },
-  codigoMascota: String,
+  codigoMascota:  {
+    type: String,
+    unique: true,
+    required: true,
+  },
   mascota: String,
   veterinario: String,
   fecha: String,

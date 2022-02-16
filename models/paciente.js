@@ -3,22 +3,50 @@ const bcrypt = require('bcrypt');
 const { Schema } = mongoose;
 
 const mascotaSchema = new Schema({
-  codigoMascota: String,
+  codigoMascota: {
+    type: String,
+    unique: true,
+    required: true,
+  },
   especie: String,
   raza: String,
-  nombre: String,
+  nombre: {
+    type: String,
+    maxlength: 20,
+    required: true,
+  },
   fechaNac: String,
   sexo: String,
   plan: String,
 });
 
 const userSchema = new Schema({
-  email: String,
-  password: String,
-  nombre: String,
-  apellido: String,
+  email: {
+    type: String,
+    maxlength: 35,
+    required: true,
+  },
+  password: {
+    type: String,
+    maxlength: 20,
+    required: true,
+  },
+  nombre: {
+    type: String,
+    maxlength: 20,
+    required: true,
+  },
+  apellido: {
+    type: String,
+    maxlength: 20,
+    required: true,
+  },
   genero: String,
-  dni: String,
+  dni: {
+    type: String,
+    unique: true,
+    required: true,
+  },
   avatar: String,
   mascotas: [mascotaSchema],
   incorporacion: String,
