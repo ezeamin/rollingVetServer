@@ -6,16 +6,7 @@ Rolling Vet es un sitio web de veterinaria que ofrece planes para tus mascotas. 
 
 Para el proyecto, se utilizaron los siguientes recursos:
 
-**Front End**
-
-- React
-- React-Bootstrap
-- Bootstrap
-- React-Router & React-Router-dom
-- Material UI (implementacion de MUI)
-- SweetAlert
-
-**Back End**
+**Back-End (este repo)**
 
 - Node.js
 - Express
@@ -27,6 +18,8 @@ Para el proyecto, se utilizaron los siguientes recursos:
 - Passport & Passport-local
 - Path
 - Nodemon (en development)
+
+Repositorio front-end: [Front-end](https://github.com/ezeamin/rollingVet)
 
 ## Instalación
 
@@ -40,7 +33,7 @@ Tras clonar el repositorio, ejecutar el siguiente comando en la carpeta en una t
 npm install
 ```
 
-Las dependencias se instalarán automáticamente. En caso de clonar desde la rama 'dev', se debe repetir este paso en la carpeta 'server'.
+Las dependencias se instalarán automáticamente. 
 
-## Demo
+## Demo (Server)
 [Rolling Vet](https://rollingvet.herokuapp.com)
