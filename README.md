@@ -17,6 +17,7 @@ Para el proyecto, se utilizaron los siguientes recursos:
 - Morgan
 - Passport & Passport-local
 - Path
+- Cors
 - Nodemon (en development)
 
 Repositorio front-end: [Front-end](https://github.com/ezeamin/rollingVet)

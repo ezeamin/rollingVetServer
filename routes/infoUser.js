@@ -73,7 +73,7 @@ router.put(
 
 //citas
 
-router.get("/api/citasProgramadas/:dni", isAuthenticated, (req, res) => {
+router.get("/api/citasProgramadas/user/dni/:dni", isAuthenticated, (req, res) => {
   DbCitas.find({ dni: req.params.dni, atendido: false }, (err, citas) => {
     if (err) res.status(500).json({ ok: false });
     else {
@@ -83,7 +83,7 @@ router.get("/api/citasProgramadas/:dni", isAuthenticated, (req, res) => {
   });
 });
 
-router.get("/api/citasRegistro/:dni", isAuthenticated, (req, res) => {
+router.get("/api/citasRegistro/user/dni/:dni", isAuthenticated, (req, res) => {
   DbCitas.find({ dni: req.params.dni, atendido: true }, (err, citas) => {
     if (err) res.status(500).json({ ok: false });
     else {

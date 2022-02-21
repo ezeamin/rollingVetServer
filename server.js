@@ -20,7 +20,7 @@ app.set("port", process.env.PORT || 5000);
 app.use(
   cors({
      origin: ["https://rollingvet.netlify.app","http://localhost:3000"],
-    //  credentials: true,
+     credentials: true,
   })
 );
 app.use(morgan("dev"));
@@ -31,11 +31,10 @@ app.use(
     secret: process.env.SECRET_KEY,
     resave: false,
     saveUninitialized: false,
-    cookie : {
-      sameSite: 'lax',
-      // secure: true
-      maxAge: 1000 * 60 * 60 * 24 * 7
-    }
+    // cookie : {
+    //   sameSite: 'none',
+    //   secure: true,
+    // }
   })
 );
 app.use(passport.initialize());

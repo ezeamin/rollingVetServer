@@ -54,8 +54,31 @@ router.get("/api/qty", isAuthenticated, (req, res) => {
   });
 });
 
-router.get("/api/pacientes", isAuthenticated, (req, res) => {
-  DbPacientes.find({ dni: { $ne: 1 } }, (err, pacientes) => {
+router.get("/api/pacientes/:min", isAuthenticated, (req, res) => {
+  let min = req.params.min;
+
+  if (min === -1) {
+    DbPacientes.find({ dni: { $ne: 1 } }, (err, pacientes) => {
+      if (err) {
+        res.status(500).json({
+          ok: false,
+          err,
+        });
+      } else {
+        res.status(200).json({
+          ok: true,
+          pacientes,
+        });
+      }
+    });
+    return;
+  }
+
+  let info = DbPacientes.find({ dni: { $ne: 1 } })
+    .sort({ apellido: 1, nombre: 1 })
+    .skip(min)
+    .limit(5);
+  info.exec((err, pacientes) => {
     if (err) {
       res.status(500).json({
         ok: false,
@@ -70,7 +93,7 @@ router.get("/api/pacientes", isAuthenticated, (req, res) => {
   });
 });
 
-router.get("/api/pacientes/:dni", isAuthenticated, (req, res) => {
+router.get("/api/paciente/:dni", isAuthenticated, (req, res) => {
   DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
     if (err) {
       res.status(500).json({
@@ -113,10 +136,11 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
     avatar: req.body.avatar,
   };
 
-  if(!validar(datos)) res.status(500).json({
-    ok: false,
-    mensaje: "Datos inválidos",
-  });
+  if (!validar(datos))
+    res.status(500).json({
+      ok: false,
+      mensaje: "Datos inválidos",
+    });
 
   DbPacientes.findOneAndUpdate(
     { dni: req.body.dni },
@@ -215,10 +239,11 @@ router.delete(
 );
 
 router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
-  if(!validar(req.body)) res.status(500).json({
-    ok: false,
-    mensaje: "Datos inválidos",
-  });
+  if (!validar(req.body))
+    res.status(500).json({
+      ok: false,
+      mensaje: "Datos inválidos",
+    });
 
   DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
     if (err) {
@@ -254,8 +279,11 @@ router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
 
 //citas
 
-router.get("/api/citasProgramadas", isAuthenticated, (req, res) => {
-  DbCitas.find({ atendido: false }, (err, citas) => {
+router.get("/api/citasProgramadas/:min", isAuthenticated, (req, res) => {
+  let min = req.params.min;
+
+  let citas = DbCitas.find({ atendido: false }).skip(min).limit(3);
+  citas.exec((err, citas) => {
     if (err) {
       res.status(500).json({
         ok: false,
@@ -270,8 +298,11 @@ router.get("/api/citasProgramadas", isAuthenticated, (req, res) => {
   });
 });
 
-router.get("/api/citasRegistro", isAuthenticated, (req, res) => {
-  DbCitas.find({ atendido: true }, (err, citas) => {
+router.get("/api/citasRegistro/:min", isAuthenticated, (req, res) => {
+  let min = req.params.min;
+
+  let citas = DbCitas.find({ atendido: true }).skip(min).limit(3);
+  citas.exec((err, citas) => {
     if (err) {
       res.status(500).json({
         ok: false,
@@ -306,10 +337,11 @@ router.post("/api/citas", isAuthenticated, (req, res) => {
     comentarios: req.body.comentarios,
   });
 
-  if(!validar(cita)) res.status(500).json({
-    ok: false,
-    mensaje: "Datos inválidos",
-  });
+  if (!validar(cita))
+    res.status(500).json({
+      ok: false,
+      mensaje: "Datos inválidos",
+    });
 
   DbCitas.create(cita, (err, cita) => {
     if (err) {
@@ -343,11 +375,12 @@ router.get("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
 });
 
 router.put("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
-  if(!validar(req.body)) res.status(500).json({
-    ok: false,
-    mensaje: "Datos inválidos",
-  });
-  
+  if (!validar(req.body))
+    res.status(500).json({
+      ok: false,
+      mensaje: "Datos inválidos",
+    });
+
   DbCitas.findOneAndUpdate(
     { codigoCita: req.params.codigoCita },
     req.body,
@@ -482,11 +515,12 @@ router.get("/api/precios", (req, res) => {
 });
 
 router.put("/api/precios", isAuthenticated, isAdmin, (req, res) => {
-  if(!validar(req.body)) res.status(500).json({
-    ok: false,
-    mensaje: "Datos inválidos",
-  });
-  
+  if (!validar(req.body))
+    res.status(500).json({
+      ok: false,
+      mensaje: "Datos inválidos",
+    });
+
   DbPrecios.findOneAndUpdate(
     { plan: req.body.plan },
     req.body,
