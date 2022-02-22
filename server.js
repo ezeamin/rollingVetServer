@@ -46,7 +46,7 @@ app.use(routesAuth);
 app.use(routesInfoAdmin);
 app.use(routesInfoUser);
 
-app.route("/").get((req, res) => {
+app.route("*").get((req, res) => {
   res.sendFile(__dirname + "/public/index.html");
 });
 

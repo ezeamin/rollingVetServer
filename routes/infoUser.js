@@ -105,7 +105,6 @@ router.get(
     data.exec((err, citas) => {
       if (err) res.status(500).json({ ok: false });
       else {
-        console.log(citas);
         res.status(200).json({ ok: true, citas: citas });
       }
     });
