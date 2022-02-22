@@ -57,7 +57,7 @@ router.get("/api/qty", isAuthenticated, (req, res) => {
 router.get("/api/pacientes/:min", isAuthenticated, (req, res) => {
   let min = req.params.min;
 
-  if (min === -1) {
+  if (min === "-1") {
     DbPacientes.find({ dni: { $ne: 1 } }, (err, pacientes) => {
       if (err) {
         res.status(500).json({
@@ -282,7 +282,10 @@ router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
 router.get("/api/citasProgramadas/:min", isAuthenticated, (req, res) => {
   let min = req.params.min;
 
-  let citas = DbCitas.find({ atendido: false }).skip(min).limit(3);
+  let citas = DbCitas.find({ atendido: false })
+    .sort({ fecha: 1, hora: 1 })
+    .skip(min)
+    .limit(3);
   citas.exec((err, citas) => {
     if (err) {
       res.status(500).json({
@@ -301,7 +304,10 @@ router.get("/api/citasProgramadas/:min", isAuthenticated, (req, res) => {
 router.get("/api/citasRegistro/:min", isAuthenticated, (req, res) => {
   let min = req.params.min;
 
-  let citas = DbCitas.find({ atendido: true }).skip(min).limit(3);
+  let citas = DbCitas.find({ atendido: true })
+    .sort({ fecha: -1, hora: 1 })
+    .skip(min)
+    .limit(3);
   citas.exec((err, citas) => {
     if (err) {
       res.status(500).json({

@@ -73,23 +73,43 @@ router.put(
 
 //citas
 
-router.get("/api/citasProgramadas/user/dni/:dni", isAuthenticated, (req, res) => {
-  DbCitas.find({ dni: req.params.dni, atendido: false }, (err, citas) => {
-    if (err) res.status(500).json({ ok: false });
-    else {
-      console.log(citas);
-      res.status(200).json({ ok: true, citas: citas });
-    }
-  });
-});
+router.get(
+  "/api/citasProgramadas/user/dni/:dni/:min",
+  isAuthenticated,
+  (req, res) => {
+    let min = req.params.min;
 
-router.get("/api/citasRegistro/user/dni/:dni", isAuthenticated, (req, res) => {
-  DbCitas.find({ dni: req.params.dni, atendido: true }, (err, citas) => {
-    if (err) res.status(500).json({ ok: false });
-    else {
-      res.status(200).json({ ok: true, citas: citas });
-    }
-  });
-});
+    let data = DbCitas.find({ dni: req.params.dni, atendido: false })
+      .sort({ fecha: 1, hora: 1 })
+      .skip(min)
+      .limit(3);
+    data.exec((err, citas) => {
+      if (err) res.status(500).json({ ok: false });
+      else {
+        res.status(200).json({ ok: true, citas: citas });
+      }
+    });
+  }
+);
+
+router.get(
+  "/api/citasRegistro/user/dni/:dni/:min",
+  isAuthenticated,
+  (req, res) => {
+    let min = req.params.min;
+
+    let data = DbCitas.find({ dni: req.params.dni, atendido: true })
+      .sort({ fecha: -1, hora: 1 })
+      .skip(min)
+      .limit(3);
+    data.exec((err, citas) => {
+      if (err) res.status(500).json({ ok: false });
+      else {
+        console.log(citas);
+        res.status(200).json({ ok: true, citas: citas });
+      }
+    });
+  }
+);
 
 module.exports = router;
