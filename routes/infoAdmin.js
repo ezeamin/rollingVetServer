@@ -125,6 +125,26 @@ router.delete("/api/pacientes/:dni", isAuthenticated, (req, res) => {
   });
 });
 
+router.put("/api/pacientes/editarAvatar", isAuthenticated, (req, res) => {
+  DbPacientes.findOneAndUpdate(
+    { dni: req.body.dni },
+    { $set: { avatar: req.body.avatar } },
+    { new: true },
+    (err, paciente) => {
+      if (err) {
+        res.status(500).json({
+          ok: false,
+          err,
+        });
+      } else {
+        res.status(200).json({
+          ok: true,
+        });
+      }
+    }
+  );
+});
+
 router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
   let datos = {
     dni: req.body.dni,
