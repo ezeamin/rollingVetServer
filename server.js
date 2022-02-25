@@ -18,12 +18,12 @@ app.set("port", process.env.PORT || 5000);
 
 //middlewares
 app.use(express.static(__dirname + '/public'));
-// app.use(
-//   cors({
-//      origin: ["https://rollingvet.netlify.app","http://localhost:3000","https://rollingvet.herokuapp.com"],
-//      credentials: true,
-//   })
-// );
+app.use(
+  cors({
+     origin: ["https://rollingvet.netlify.app","http://localhost:3000","https://rollingvet.herokuapp.com"],
+     credentials: true,
+  })
+);
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
