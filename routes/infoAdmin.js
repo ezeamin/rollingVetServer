@@ -132,7 +132,6 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
     apellido: req.body.apellido,
     genero: req.body.genero,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10),
     avatar: req.body.avatar,
   };
 
@@ -141,6 +140,61 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
       ok: false,
       mensaje: "Datos inválidos",
     });
+
+  DbPacientes.findOne({ dni: req.body.dni }, (err, paciente) => {
+    if (!err && paciente) {
+      if (paciente.avatar !== datos.avatar) {
+        DbCitas.updateMany(
+          { dni: req.body.dni },
+          {
+            $set: {
+              paciente: {
+                nombre: datos.nombre,
+                apellido: datos.apellido,
+                avatar: datos.avatar,
+              },
+            },
+          },
+          (err, cita) => {}
+        );
+      }
+    }
+  });
+
+  DbPacientes.findOneAndUpdate(
+    { dni: req.body.dni },
+    datos,
+    { new: true },
+    (err, paciente) => {
+      if (err) {
+        res.status(500).json({
+          ok: false,
+          err,
+        });
+      } else {
+        res.status(200).json({
+          ok: true,
+          paciente,
+        });
+      }
+    }
+  );
+});
+
+router.put("/api/pacientes/editarPass", isAuthenticated, (req, res) => {
+  let datos = {
+    password: req.body.password,
+  };
+
+  console.log(req.body);
+
+  if (!validar(datos))
+    res.status(500).json({
+      ok: false,
+      mensaje: "Datos inválidos",
+    });
+
+  datos.password = bcrypt.hashSync(req.body.password, 10);
 
   DbPacientes.findOneAndUpdate(
     { dni: req.body.dni },
