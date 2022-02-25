@@ -20,7 +20,7 @@ app.set("port", process.env.PORT || 5000);
 app.use(express.static(__dirname + '/public'));
 app.use(
   cors({
-     origin: ["https://rollingvet.netlify.app","http://localhost:3000"],
+     origin: ["https://rollingvet.netlify.app","http://localhost:3000","https://rollingvet.herokuapp.com"],
      credentials: true,
   })
 );
