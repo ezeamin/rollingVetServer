@@ -3,34 +3,12 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 
 const validar = require("../helpers/validar");
+const isAuthenticated = require("../helpers/isAuthenticated");
+const generarCodigo = require("../helpers/generarCodigo");
 
 const DbPacientes = require("../models/paciente");
 const DbCitas = require("../models/cita");
 const DbFechas = require("../models/fechas");
-const DbPrecios = require("../models/precios");
-
-const isAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  return res.status(200).json({ message: "Unauthorized", code: 401 });
-};
-
-const isAdmin = (req, res, next) => {
-  if (req.user.dni === "1") {
-    return next();
-  }
-  return res.status(200).json({ message: "Unauthorized", code: 401 });
-};
-
-const generarCodigo = () => {
-  let codigo = "";
-  const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  for (let i = 0; i < 6; i++) {
-    codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
-  }
-  return codigo;
-};
 
 router.get("/api/qty", isAuthenticated, (req, res) => {
   DbPacientes.countDocuments({}, (err, count) => {
@@ -148,6 +126,7 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
           { dni: req.body.dni },
           {
             $set: {
+              dni: datos.dni,
               paciente: {
                 nombre: datos.nombre,
                 apellido: datos.apellido,
@@ -331,273 +310,64 @@ router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
   });
 });
 
-//citas
+//user
 
-router.get("/api/citasProgramadas/:min", isAuthenticated, (req, res) => {
-  let min = req.params.min;
+router.get("/api/user/qty/:dni", isAuthenticated, (req, res) => {
+  DbPacientes.findOne({ dni: req.params.dni }, (err, doc) => {
+    if (doc) {
+      let qtyMascotas = doc.mascotas.length;
 
-  let citas = DbCitas.find({ atendido: false })
-    .sort({ fecha: 1, hora: 1 })
-    .skip(min)
-    .limit(3);
-  citas.exec((err, citas) => {
-    if (err) {
+      DbCitas.find({ dni: req.params.dni, atendido: false }, (err, citas) => {
+        let qtyCitas = citas.length;
+
+        res.status(200).json({ mascotas: qtyMascotas, citas: qtyCitas });
+      });
+    }
+  });
+});
+
+router.get("/api/user/pacientes/mascotas/:dni", isAuthenticated, (req, res) => {
+  DbPacientes.findOne({ dni: req.params.dni }, (err, doc) => {
+    if (doc) {
+      res.status(200).json({ mascotas: doc.mascotas });
+    } else {
+      res.status(500).json({ ok: false });
+    }
+  });
+});
+
+router.put(
+  "/api/user/guardarPlan/:dni/:codigoMascota",
+  isAuthenticated,
+  (req, res) => {
+    if (!validar(req.body))
       res.status(500).json({
         ok: false,
-        err,
+        mensaje: "Datos inválidos",
       });
-    } else {
-      res.status(200).json({
-        ok: true,
-        citas,
-      });
-    }
-  });
-});
 
-router.get("/api/citasRegistro/:min", isAuthenticated, (req, res) => {
-  let min = req.params.min;
-
-  let citas = DbCitas.find({ atendido: true })
-    .sort({ fecha: -1, hora: 1 })
-    .skip(min)
-    .limit(3);
-  citas.exec((err, citas) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      res.status(200).json({
-        ok: true,
-        citas,
-      });
-    }
-  });
-});
-
-router.post("/api/citas", isAuthenticated, (req, res) => {
-  const codigoCita = generarCodigo();
-
-  const cita = new DbCitas({
-    codigoCita: codigoCita,
-    fecha: req.body.fecha,
-    hora: req.body.hora,
-    atendido: false,
-    codigoMascota: req.body.codigoMascota,
-    dni: req.body.dni,
-    paciente: {
-      nombre: req.body.paciente.nombre,
-      apellido: req.body.paciente.apellido,
-      avatar: req.body.paciente.avatar,
-    },
-    mascota: req.body.mascota,
-    veterinario: req.body.veterinario,
-    comentarios: req.body.comentarios,
-  });
-
-  if (!validar(cita))
-    res.status(500).json({
-      ok: false,
-      mensaje: "Datos inválidos",
-    });
-
-  DbCitas.create(cita, (err, cita) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      res.status(200).json({
-        ok: true,
-        cita,
-      });
-    }
-  });
-});
-
-router.get("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
-  DbCitas.find({ codigoCita: req.params.codigoCita }, (err, cita) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      res.status(200).json({
-        ok: true,
-        cita: cita[0],
-      });
-    }
-  });
-});
-
-router.put("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
-  if (!validar(req.body))
-    res.status(500).json({
-      ok: false,
-      mensaje: "Datos inválidos",
-    });
-
-  DbCitas.findOneAndUpdate(
-    { codigoCita: req.params.codigoCita },
-    req.body,
-    { new: true },
-    (err, cita) => {
-      if (err) {
-        res.status(500).json({
-          ok: false,
-          err,
-        });
-      } else {
-        res.status(200).json({
-          ok: true,
-        });
-      }
-    }
-  );
-});
-
-router.delete("/api/citas/paciente/:dni", isAuthenticated, (req, res) => {
-  DbCitas.find(
-    {
-      dni: req.params.dni,
-      atendido: false,
-    },
-    (err, docs) => {
-      if (err) {
-        res.status(500).json({
-          ok: false,
-          err,
-        });
-      } else {
-        docs.forEach((cita) => {
-          const fecha = cita.fecha;
-          const hora = cita.hora;
-
-          DbFechas.findOne({ fecha: fecha }, (err, doc) => {
-            if (doc) {
-              doc.ocupados = doc.ocupados.filter((ocupado) => ocupado !== hora);
-              doc.save();
+    DbPacientes.findOne({ dni: req.params.dni }, (err, doc) => {
+      if (doc) {
+        let mascota = doc.mascotas.find(
+          (mascota) => mascota.codigoMascota === req.params.codigoMascota
+        );
+        if (mascota) {
+          mascota.plan = req.body.plan;
+          doc.save((err, mascota) => {
+            if (err) {
+              res.status(500).json({ ok: false });
+            } else {
+              res.status(200).json({ ok: true });
             }
           });
-
-          cita.remove();
-        });
-
-        res.status(200).json({
-          ok: true,
-        });
-      }
-    }
-  );
-});
-
-router.delete("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
-  DbCitas.findOneAndDelete(
-    { codigoCita: req.params.codigoCita },
-    (err, cita) => {
-      if (err) {
-        res.status(500).json({
-          ok: false,
-          err,
-        });
+        } else {
+          res.status(500).json({ ok: false });
+        }
       } else {
-        const fecha = cita.fecha;
-        const hora = cita.hora;
-
-        DbFechas.findOne({ fecha: fecha }, (err, doc) => {
-          if (doc) {
-            doc.ocupados = doc.ocupados.filter((ocupado) => ocupado !== hora);
-            doc.save();
-          }
-        });
-
-        res.status(200).json({
-          ok: true,
-        });
+        res.status(500).json({ ok: false });
       }
-    }
-  );
-});
-
-router.get("/api/fechas/:fecha", isAuthenticated, (req, res) => {
-  DbFechas.find({ fecha: req.params.fecha }, (err, fecha) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      res.status(200).json({
-        ok: true,
-        datos: fecha[0] ? fecha[0].ocupados : null,
-      });
-    }
-  });
-});
-
-router.put("/api/fechas", isAuthenticated, (req, res) => {
-  DbFechas.findOne({ fecha: req.body.fecha }, (err, doc) => {
-    if (doc) {
-      doc.ocupados.push(req.body.hora);
-      doc.save();
-    } else {
-      let doc = new DbFechas({
-        fecha: req.body.fecha,
-        ocupados: [req.body.hora],
-      });
-      doc.save();
-    }
-  });
-
-  res.status(200).json({ ok: true, datos: req.body });
-});
-
-//precios
-
-router.get("/api/precios", (req, res) => {
-  DbPrecios.find({}, (err, precios) => {
-    if (err) {
-      res.status(500).json({
-        ok: false,
-        err,
-      });
-    } else {
-      res.status(200).json({
-        ok: true,
-        precios,
-      });
-    }
-  });
-});
-
-router.put("/api/precios", isAuthenticated, isAdmin, (req, res) => {
-  if (!validar(req.body))
-    res.status(500).json({
-      ok: false,
-      mensaje: "Datos inválidos",
     });
-
-  DbPrecios.findOneAndUpdate(
-    { plan: req.body.plan },
-    req.body,
-    { new: true },
-    (err, precios) => {
-      if (err) {
-        res.status(500).json({
-          ok: false,
-          err,
-        });
-      } else {
-        res.status(200).json({
-          ok: true,
-        });
-      }
-    }
-  );
-});
+  }
+);
 
 module.exports = router;
