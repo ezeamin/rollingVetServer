@@ -127,6 +127,10 @@ router.put("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
           err,
         });
       } else {
+        DbFechas.findOne({ fecha: cita.fecha }, (err, doc) => {
+          if (doc.ocupados.length === 1) DbFechas.deleteOne({ fecha: cita.fecha });
+        });
+
         res.status(200).json({
           ok: true,
         });
@@ -155,7 +159,10 @@ router.delete("/api/citas/paciente/:dni", isAuthenticated, (req, res) => {
           DbFechas.findOne({ fecha: fecha }, (err, doc) => {
             if (doc) {
               doc.ocupados = doc.ocupados.filter((ocupado) => ocupado !== hora);
-              doc.save();
+              
+              if (doc.ocupados.length === 0)
+                DbFechas.deleteOne({ fecha: fecha });
+              else doc.save();
             }
           });
 
@@ -186,7 +193,9 @@ router.delete("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
         DbFechas.findOne({ fecha: fecha }, (err, doc) => {
           if (doc) {
             doc.ocupados = doc.ocupados.filter((ocupado) => ocupado !== hora);
-            doc.save();
+
+            if (doc.ocupados.length === 0) DbFechas.deleteOne({ fecha: fecha });
+            else doc.save();
           }
         });
 
