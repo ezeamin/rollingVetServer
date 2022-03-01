@@ -8,8 +8,6 @@ const cors = require("cors");
 
 const app = express();
 const routesAuth = require("./routes/auth");
-// const routesInfoAdmin = require("./routes/infoAdmin");
-// const routesInfoUser = require("./routes/infoUser");
 const routesCitas = require("./routes/citas")
 const routesPacientes = require("./routes/pacientes")
 const routesFechas = require("./routes/fechas")
