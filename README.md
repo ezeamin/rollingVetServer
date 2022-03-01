@@ -2,6 +2,10 @@
 
 Rolling Vet es un sitio web de veterinaria que ofrece planes para tus mascotas. Posee panel de admin y de usuarios.
 
+### Aclaracion importante
+
+Si bien el front end está subido en netlify, esa aplicacion no funciona como corresponde. Por un conflicto de librerias con el navegador y las cookies, la conexion al servidor hosteado en heroku falla al realizar la autenticacion. Por ello mismo, este repositorio incluye front y back end, ambos hosteados en heroku. El README del front end se encuentra en el enlace debajo.
+
 ## Librerias utilizadas
 
 Para el proyecto, se utilizaron los siguientes recursos:
