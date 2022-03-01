@@ -19,6 +19,7 @@ require("./passport/auth-login");
 app.set("port", process.env.PORT || 5000);
 
 //middlewares
+app.use(express.static(__dirname + '/public'));
 app.use(
   cors({
      origin: ["https://rollingvet.netlify.app","http://localhost:3000","https://rollingvet.herokuapp.com"],
@@ -48,6 +49,10 @@ app.use(routesCitas);
 app.use(routesPacientes);
 app.use(routesFechas);
 app.use(routesPrecios);
+
+app.route("*").get((req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
 
 app.listen(app.get("port"), () => {
   console.log(`Server on port ${app.get("port")}`);
