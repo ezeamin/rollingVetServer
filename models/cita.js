@@ -27,7 +27,6 @@ const citaSchema = new Schema({
   },
   codigoMascota:  {
     type: String,
-    unique: true,
     required: true,
   },
   mascota: String,

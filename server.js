@@ -8,8 +8,12 @@ const cors = require("cors");
 
 const app = express();
 const routesAuth = require("./routes/auth");
-const routesInfoAdmin = require("./routes/infoAdmin");
-const routesInfoUser = require("./routes/infoUser");
+// const routesInfoAdmin = require("./routes/infoAdmin");
+// const routesInfoUser = require("./routes/infoUser");
+const routesCitas = require("./routes/citas")
+const routesPacientes = require("./routes/pacientes")
+const routesFechas = require("./routes/fechas")
+const routesPrecios = require("./routes/precios")
 require("./database/database");
 require("./passport/auth-login");
 
@@ -19,7 +23,7 @@ app.set("port", process.env.PORT || 5000);
 //middlewares
 app.use(
   cors({
-     origin: ["https://rollingvet.netlify.app","http://localhost:3000"],
+     origin: ["https://rollingvet.netlify.app","http://localhost:3000","https://rollingvet.herokuapp.com"],
      credentials: true,
   })
 );
@@ -42,8 +46,10 @@ app.use(passport.session());
 
 //routes
 app.use(routesAuth);
-app.use(routesInfoAdmin);
-app.use(routesInfoUser);
+app.use(routesCitas);
+app.use(routesPacientes);
+app.use(routesFechas);
+app.use(routesPrecios);
 
 app.listen(app.get("port"), () => {
   console.log(`Server on port ${app.get("port")}`);
