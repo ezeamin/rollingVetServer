@@ -61,6 +61,7 @@ passport.use(
           return done(null, false, {
             message: "Error al registrar.",
             code: 500,
+            extra: error,
           });
         }
       }

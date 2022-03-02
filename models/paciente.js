@@ -3,17 +3,12 @@ const bcrypt = require('bcrypt');
 const { Schema } = mongoose;
 
 const mascotaSchema = new Schema({
-  codigoMascota: {
-    type: String,
-    unique: true,
-    required: true,
-  },
+  codigoMascota: String,
   especie: String,
   raza: String,
   nombre: {
     type: String,
     maxlength: 20,
-    required: true,
   },
   fechaNac: String,
   sexo: String,

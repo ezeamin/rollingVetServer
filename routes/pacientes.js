@@ -121,22 +121,20 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
 
   DbPacientes.findOne({ dni: req.body.dni }, (err, paciente) => {
     if (!err && paciente) {
-      if (paciente.avatar !== datos.avatar) {
-        DbCitas.updateMany(
-          { dni: req.body.dni },
-          {
-            $set: {
-              dni: datos.dni,
-              paciente: {
-                nombre: datos.nombre,
-                apellido: datos.apellido,
-                avatar: datos.avatar,
-              },
+      DbCitas.updateMany(
+        { dni: req.body.dni },
+        {
+          $set: {
+            dni: datos.dni,
+            paciente: {
+              nombre: datos.nombre,
+              apellido: datos.apellido,
+              avatar: datos.avatar,
             },
           },
-          (err, cita) => {}
-        );
-      }
+        },
+        (err, cita) => {}
+      );
     }
   });
 
@@ -302,6 +300,16 @@ router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
         if (mascota.plan === "") mascota.plan = prevPlan; //editado desde user, no se carga plan y se mantiene el anterior
 
         paciente.mascotas[mascotaIndex] = mascota;
+
+        DbCitas.updateMany(
+          { codigoMascota: req.body.codigoMascota },
+          {
+            $set: {
+              mascota: req.body.nombre,
+            },
+          },
+          (err, cita) => {}
+        );
       }
 
       paciente.save();
