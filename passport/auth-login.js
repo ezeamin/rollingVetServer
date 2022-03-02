@@ -35,11 +35,17 @@ passport.use(
     },
     async (req, email, password, done) => {
       const exits = await User.exists({ email: email });
+      const exitsDni = await User.exists({ dni: req.body.dni });
 
       if (exits) {
         return done(null, false, {
           message: "Email en uso.",
           code: 1,
+        });
+      } else if(exitsDni) {
+        return done(null, false, {
+          message: "DNI en uso.",
+          code: 2,
         });
       } else {
         try {

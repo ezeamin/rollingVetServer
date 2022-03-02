@@ -15,7 +15,7 @@ function validar(datos) {
         break;
       case "nombre":
       case "apellido":
-        if (valor.length > 20 || valor.length < 3) {
+        if (valor.length > 20 || valor.length < 2) {
           return false;
         }
         break;

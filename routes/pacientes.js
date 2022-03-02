@@ -95,6 +95,36 @@ router.delete("/api/pacientes/:dni", isAuthenticated, (req, res) => {
         err,
       });
     } else {
+      DbCitas.find(
+        { dni: req.params.dni, atendido: false },
+        (err, citas) => {
+          if (err) {
+            res.status(500).json({
+              ok: false,
+              err,
+            });
+          } else {
+            citas.forEach((cita) => {
+              const fecha = cita.fecha;
+              const hora = cita.hora;
+
+              DbFechas.findOne({ fecha: fecha }, (err, doc) => {
+                if (doc) {
+                  doc.ocupados = doc.ocupados.filter(
+                    (ocupado) => ocupado !== hora
+                  );
+                  doc.save();
+                }
+              });
+
+              console.log(cita);
+
+              cita.remove();
+            });
+          }
+        }
+      );
+
       res.status(200).json({
         ok: true,
         paciente,
@@ -105,6 +135,7 @@ router.delete("/api/pacientes/:dni", isAuthenticated, (req, res) => {
 
 router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
   let datos = {
+    dniOriginal: req.body.dniOriginal,
     dni: req.body.dni,
     nombre: req.body.nombre,
     apellido: req.body.apellido,
@@ -139,7 +170,7 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
   });
 
   DbPacientes.findOneAndUpdate(
-    { dni: req.body.dni },
+    { dni: datos.dniOriginal },
     datos,
     { new: true },
     (err, paciente) => {
