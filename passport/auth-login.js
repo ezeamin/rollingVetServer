@@ -34,18 +34,18 @@ passport.use(
       passReqToCallback: true,
     },
     async (req, email, password, done) => {
-      const exits = await User.exists({ email: email });
-      const exitsDni = await User.exists({ dni: req.body.dni });
+      const exists = await User.exists({ email: email });
+      const existsDni = await User.exists({ dni: req.body.dni });
 
-      if (exits) {
+      if (exists) {
         return done(null, false, {
           message: "Email en uso.",
-          code: 1,
+          code: 401,
         });
-      } else if(exitsDni) {
+      } else if(existsDni) {
         return done(null, false, {
           message: "DNI en uso.",
-          code: 2,
+          code: 401,
         });
       } else {
         try {
