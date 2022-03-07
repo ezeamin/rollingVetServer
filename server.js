@@ -20,13 +20,13 @@ app.set("port", process.env.PORT || 5000);
 
 //middlewares
 app.use(express.static(__dirname + '/public'));
-app.use(
+/*app.use(
   cors({
-     origin: ["https://rollingvet.netlify.app","http://localhost:3000","https://rollingvet.herokuapp.com"],
+     origin: ["https://rollingvet.netlify.app","http://localhost:3000","https://rollingvet.herokuapp.com","PostmanRuntime/7.29.0"],
      credentials: true,
   })
-);
-app.use(morgan("dev"));
+);*/
+app.use(morgan("short"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(

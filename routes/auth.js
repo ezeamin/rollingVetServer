@@ -5,11 +5,14 @@ const router = express.Router();
 const validar = require("../helpers/validar");
 
 router.post("/api/signup", (req, res) => {
-  if(!validar(req.body)) res.status(500).json({
-    ok: false,
-    code: 500,
-    mensaje: "Datos inválidos",
-  });
+  if (!validar(req.body)) {
+    res.status(500).json({
+      ok: false,
+      code: 500,
+      mensaje: "Datos inválidos",
+    });
+    return;
+  }
 
   passport.authenticate("local-signup", (err, user, info) => {
     if (err) {
@@ -34,7 +37,7 @@ router.get("/api/error", (req, res) => {
 });
 
 router.get("/api/success", (req, res) => {
-  res.status(200).json({ message: "Success", code: 200});
+  res.status(200).json({ message: "Success", code: 200 });
 });
 
 router.delete("/api/logout", (req, res) => {

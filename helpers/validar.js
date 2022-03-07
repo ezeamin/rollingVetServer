@@ -1,13 +1,12 @@
 function validar(datos) {
-  //console.log(datos);
+  for (let i = 0; i < Object.keys(datos).length; i++) {
+    let valor = Object.values(datos)[i];
 
-  Object.keys(datos).forEach(function (key) {
-    let valor = datos[key];
-    if (valor == "") {
+    if (valor === "") {
       return false;
     }
 
-    switch (key) {
+    switch (Object.keys(datos)[i]) {
       case "dni":
         if (valor.length > 8 || valor.length < 7) {
           return false;
@@ -46,7 +45,7 @@ function validar(datos) {
       default:
         break;
     }
-  });
+  }
 
   return true;
 }
