@@ -49,3 +49,7 @@ Las dependencias se instalarán automáticamente.
 
 - Usuario: admin@admin.com
 - Contraseña: admin
+
+### .env data
+
+Solicitar informacion del acceso a la DB por mensaje privado.
