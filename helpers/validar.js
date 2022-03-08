@@ -32,6 +32,11 @@ function validar(datos) {
           return false;
         }
         break;
+      case "precio":{
+        if (isNaN(valor) || valor.trim() === "" || Number.parseFloat(valor) < 0 || Number.parseFloat(valor) > 100000) {
+          return false;
+        }
+      }
       case "genero":
       case "especie":
         if (valor === "0") {

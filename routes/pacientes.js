@@ -303,7 +303,6 @@ router.delete(
 );
 
 router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
-  console.log(req.body);
   if (!validar(req.body)){
     res.status(500).json({
       ok: false,
