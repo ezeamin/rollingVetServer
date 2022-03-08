@@ -2,10 +2,6 @@ function validar(datos) {
   for (let i = 0; i < Object.keys(datos).length; i++) {
     let valor = Object.values(datos)[i];
 
-    if (valor === "") {
-      return false;
-    }
-
     switch (Object.keys(datos)[i]) {
       case "dni":
         if (valor.length > 8 || valor.length < 7) {

@@ -72,11 +72,13 @@ router.post("/api/citas", isAuthenticated, (req, res) => {
     comentarios: req.body.comentarios,
   });
 
-  if (!validar(cita))
+  if (!validar(cita)){
     res.status(500).json({
       ok: false,
       mensaje: "Datos inválidos",
     });
+    return;
+  }
 
   DbCitas.create(cita, (err, cita) => {
     if (err) {
@@ -110,11 +112,13 @@ router.get("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
 });
 
 router.put("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
-  if (!validar(req.body))
+  if (!validar(req.body)){
     res.status(500).json({
       ok: false,
       mensaje: "Datos inválidos",
     });
+    return;
+  }
 
   DbCitas.findOneAndUpdate(
     { codigoCita: req.params.codigoCita },

@@ -24,11 +24,13 @@ router.get("/api/precios", (req, res) => {
 });
 
 router.put("/api/precios", isAuthenticated, isAdmin, (req, res) => {
-  if (!validar(req.body))
+  if (!validar(req.body)){
     res.status(500).json({
       ok: false,
       mensaje: "Datos inválidos",
     });
+    return;
+  }
 
   DbPrecios.findOneAndUpdate(
     { plan: req.body.plan },

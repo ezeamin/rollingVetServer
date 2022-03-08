@@ -144,11 +144,13 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
     avatar: req.body.avatar,
   };
 
-  if (!validar(datos))
+  if (!validar(datos)){
     res.status(500).json({
       ok: false,
       mensaje: "Datos inválidos",
     });
+    return;
+  }
 
   DbPacientes.findOne({ dni: req.body.dni }, (err, paciente) => {
     if (!err && paciente) {
@@ -194,13 +196,13 @@ router.put("/api/pacientes/editarPass", isAuthenticated, (req, res) => {
     password: req.body.password,
   };
 
-  console.log(req.body);
-
-  if (!validar(datos))
+  if (!validar(datos)){
     res.status(500).json({
       ok: false,
       mensaje: "Datos inválidos",
     });
+    return;
+  }
 
   datos.password = bcrypt.hashSync(req.body.password, 10);
 
@@ -301,11 +303,14 @@ router.delete(
 );
 
 router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
-  if (!validar(req.body))
+  console.log(req.body);
+  if (!validar(req.body)){
     res.status(500).json({
       ok: false,
       mensaje: "Datos inválidos",
     });
+    return;
+  }
 
   DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
     if (err) {
@@ -379,11 +384,13 @@ router.put(
   "/api/user/guardarPlan/:dni/:codigoMascota",
   isAuthenticated,
   (req, res) => {
-    if (!validar(req.body))
+    if (!validar(req.body)){
       res.status(500).json({
         ok: false,
         mensaje: "Datos inválidos",
       });
+      return;
+    }
 
     DbPacientes.findOne({ dni: req.params.dni }, (err, doc) => {
       if (doc) {
