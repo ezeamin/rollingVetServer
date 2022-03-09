@@ -23,17 +23,35 @@ const citaSchema = new Schema({
       maxlength: 20,
       required: true,
     },
-    avatar: String,
+    avatar: {
+      type: String,
+      required: true,
+    },
   },
   codigoMascota:  {
     type: String,
     required: true,
   },
-  mascota: String,
-  veterinario: String,
-  fecha: String,
-  hora: String,
-  atendido: Boolean,
+  mascota: {
+    type: String,
+    required: true,
+  },
+  veterinario: {
+    type: String,
+    required: true,
+  },
+  fecha: {
+    type: String,
+    required: true,
+  },
+  hora: {
+    type: String,
+    required: true,
+  },
+  atendido: {
+    type: Boolean,
+    required: true,
+  },
   comentarios: String,
 });
 

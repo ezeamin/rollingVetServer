@@ -4,13 +4,14 @@ const bcrypt = require("bcrypt");
 
 const validar = require("../helpers/validar");
 const isAuthenticated = require("../helpers/isAuthenticated");
+const isAdmin = require("../helpers/isAdmin");
 const generarCodigo = require("../helpers/generarCodigo");
 
 const DbPacientes = require("../models/paciente");
 const DbCitas = require("../models/cita");
 const DbFechas = require("../models/fechas");
 
-router.get("/api/qty", isAuthenticated, (req, res) => {
+router.get("/api/qty", isAuthenticated, isAdmin, (req, res) => {
   DbPacientes.countDocuments({}, (err, count) => {
     let pacientes = count;
     if (pacientes != 0) pacientes--;
@@ -32,7 +33,7 @@ router.get("/api/qty", isAuthenticated, (req, res) => {
   });
 });
 
-router.get("/api/pacientes/:min", isAuthenticated, (req, res) => {
+router.get("/api/pacientes/:min", isAuthenticated, isAdmin, (req, res) => {
   let min = req.params.min;
 
   if (min === "-1") {
@@ -72,6 +73,16 @@ router.get("/api/pacientes/:min", isAuthenticated, (req, res) => {
 });
 
 router.get("/api/paciente/:dni", isAuthenticated, (req, res) => {
+  if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+    res.status(401).json({
+      ok: false,
+      err: {
+        message: "Unauthorized",
+      },
+    });
+    return;
+  }
+
   DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
     if (err) {
       res.status(500).json({
@@ -88,6 +99,16 @@ router.get("/api/paciente/:dni", isAuthenticated, (req, res) => {
 });
 
 router.delete("/api/pacientes/:dni", isAuthenticated, (req, res) => {
+  if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+    res.status(401).json({
+      ok: false,
+      err: {
+        message: "Unauthorized",
+      },
+    });
+    return;
+  }
+  
   DbPacientes.findOneAndDelete({ dni: req.params.dni }, (err, paciente) => {
     if (err) {
       res.status(500).json({
@@ -95,35 +116,30 @@ router.delete("/api/pacientes/:dni", isAuthenticated, (req, res) => {
         err,
       });
     } else {
-      DbCitas.find(
-        { dni: req.params.dni, atendido: false },
-        (err, citas) => {
-          if (err) {
-            res.status(500).json({
-              ok: false,
-              err,
+      DbCitas.find({ dni: req.params.dni, atendido: false }, (err, citas) => {
+        if (err) {
+          res.status(500).json({
+            ok: false,
+            err,
+          });
+        } else {
+          citas.forEach((cita) => {
+            const fecha = cita.fecha;
+            const hora = cita.hora;
+
+            DbFechas.findOne({ fecha: fecha }, (err, doc) => {
+              if (doc) {
+                doc.ocupados = doc.ocupados.filter(
+                  (ocupado) => ocupado !== hora
+                );
+                doc.save();
+              }
             });
-          } else {
-            citas.forEach((cita) => {
-              const fecha = cita.fecha;
-              const hora = cita.hora;
 
-              DbFechas.findOne({ fecha: fecha }, (err, doc) => {
-                if (doc) {
-                  doc.ocupados = doc.ocupados.filter(
-                    (ocupado) => ocupado !== hora
-                  );
-                  doc.save();
-                }
-              });
-
-              console.log(cita);
-
-              cita.remove();
-            });
-          }
+            cita.remove();
+          });
         }
-      );
+      });
 
       res.status(200).json({
         ok: true,
@@ -144,10 +160,10 @@ router.put("/api/pacientes/editar", isAuthenticated, (req, res) => {
     avatar: req.body.avatar,
   };
 
-  if (!validar(datos)){
+  if (!validar(datos)) {
     res.status(500).json({
       ok: false,
-      mensaje: "Datos inválidos",
+      message: "Datos inválidos",
     });
     return;
   }
@@ -196,10 +212,10 @@ router.put("/api/pacientes/editarPass", isAuthenticated, (req, res) => {
     password: req.body.password,
   };
 
-  if (!validar(datos)){
+  if (!validar(datos)) {
     res.status(500).json({
       ok: false,
-      mensaje: "Datos inválidos",
+      message: "Datos inválidos",
     });
     return;
   }
@@ -230,6 +246,16 @@ router.get(
   "/api/pacientes/:dni/:codigoMascota",
   isAuthenticated,
   (req, res) => {
+    if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+      res.status(401).json({
+        ok: false,
+        err: {
+          message: "Unauthorized",
+        },
+      });
+      return;
+    }
+
     DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
       if (err) {
         res.status(500).json({
@@ -253,6 +279,16 @@ router.delete(
   "/api/pacientes/:dni/:codigoMascota",
   isAuthenticated,
   (req, res) => {
+    if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+      res.status(401).json({
+        ok: false,
+        err: {
+          message: "Unauthorized",
+        },
+      });
+      return;
+    }
+
     DbPacientes.findOne({ dni: req.params.dni }, (err, paciente) => {
       if (err) {
         res.status(500).json({
@@ -303,10 +339,20 @@ router.delete(
 );
 
 router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
-  if (!validar(req.body)){
+  if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+    res.status(401).json({
+      ok: false,
+      err: {
+        message: "Unauthorized",
+      },
+    });
+    return;
+  }
+  
+  if (!validar(req.body)) {
     res.status(500).json({
       ok: false,
-      mensaje: "Datos inválidos",
+      message: "Datos inválidos",
     });
     return;
   }
@@ -356,6 +402,16 @@ router.put("/api/pacientes/mascota/:dni", isAuthenticated, (req, res) => {
 //user
 
 router.get("/api/user/qty/:dni", isAuthenticated, (req, res) => {
+  if (req.params.dni !== req.user.dni) {
+    res.status(401).json({
+      ok: false,
+      err: {
+        message: "Unauthorized",
+      },
+    });
+    return;
+  }
+  
   DbPacientes.findOne({ dni: req.params.dni }, (err, doc) => {
     if (doc) {
       let qtyMascotas = doc.mascotas.length;
@@ -370,6 +426,16 @@ router.get("/api/user/qty/:dni", isAuthenticated, (req, res) => {
 });
 
 router.get("/api/user/pacientes/mascotas/:dni", isAuthenticated, (req, res) => {
+  if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+    res.status(401).json({
+      ok: false,
+      err: {
+        message: "Unauthorized",
+      },
+    });
+    return;
+  }
+  
   DbPacientes.findOne({ dni: req.params.dni }, (err, doc) => {
     if (doc) {
       res.status(200).json({ mascotas: doc.mascotas });
@@ -383,10 +449,20 @@ router.put(
   "/api/user/guardarPlan/:dni/:codigoMascota",
   isAuthenticated,
   (req, res) => {
-    if (!validar(req.body)){
+    if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+      res.status(401).json({
+        ok: false,
+        err: {
+          message: "Unauthorized",
+        },
+      });
+      return;
+    }
+
+    if (!validar(req.body)) {
       res.status(500).json({
         ok: false,
-        mensaje: "Datos inválidos",
+        message: "Datos inválidos",
       });
       return;
     }

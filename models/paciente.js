@@ -35,15 +35,27 @@ const userSchema = new Schema({
     maxlength: 20,
     required: true,
   },
-  genero: String,
+  genero: {
+    type: String,
+    required: true,
+  },
   dni: {
     type: String,
     unique: true,
     required: true,
   },
-  avatar: String,
-  mascotas: [mascotaSchema],
-  incorporacion: String,
+  avatar: {
+    type: String,
+    required: true,
+  },
+  mascotas: {
+    type: [mascotaSchema],
+    required: true,
+  },
+  incorporacion: {
+    type: String,
+    required: true,
+  },
 });
 
 userSchema.methods.encryptPassword = (password) => {

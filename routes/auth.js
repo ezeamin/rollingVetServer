@@ -3,13 +3,14 @@ const passport = require("passport");
 const router = express.Router();
 
 const validar = require("../helpers/validar");
+const isAuthenticated = require("../helpers/isAuthenticated");
 
 router.post("/api/signup", (req, res) => {
   if (!validar(req.body)) {
     res.status(500).json({
       ok: false,
       code: 500,
-      mensaje: "Datos inválidos",
+      message: "Datos inválidos",
     });
     return;
   }
@@ -44,13 +45,6 @@ router.delete("/api/logout", (req, res) => {
   req.logout();
   res.status(200).json({ message: "Success", code: 200 });
 });
-
-const isAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  return res.status(200).json({ message: "Unauthorized", code: 401 });
-};
 
 router.get("/api/auth", isAuthenticated, (req, res) => {
   res.status(200).json({

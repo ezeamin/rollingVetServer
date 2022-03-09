@@ -3,12 +3,13 @@ const router = express.Router();
 
 const validar = require("../helpers/validar");
 const isAuthenticated = require("../helpers/isAuthenticated");
+const isAdmin = require("../helpers/isAdmin");
 const generarCodigo = require("../helpers/generarCodigo");
 
 const DbCitas = require("../models/cita");
 const DbFechas = require("../models/fechas");
 
-router.get("/api/citasProgramadas/:min", isAuthenticated, (req, res) => {
+router.get("/api/citasProgramadas/:min", isAuthenticated, isAdmin, (req, res) => {
   let min = req.params.min;
 
   let citas = DbCitas.find({ atendido: false })
@@ -30,7 +31,7 @@ router.get("/api/citasProgramadas/:min", isAuthenticated, (req, res) => {
   });
 });
 
-router.get("/api/citasRegistro/:min", isAuthenticated, (req, res) => {
+router.get("/api/citasRegistro/:min", isAuthenticated, isAdmin, (req, res) => {
   let min = req.params.min;
 
   let citas = DbCitas.find({ atendido: true })
@@ -75,7 +76,7 @@ router.post("/api/citas", isAuthenticated, (req, res) => {
   if (!validar(cita)){
     res.status(500).json({
       ok: false,
-      mensaje: "Datos inválidos",
+      message: "Datos inválidos",
     });
     return;
   }
@@ -96,7 +97,7 @@ router.post("/api/citas", isAuthenticated, (req, res) => {
 });
 
 router.get("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
-  DbCitas.find({ codigoCita: req.params.codigoCita }, (err, cita) => {
+  DbCitas.findOne({ codigoCita: req.params.codigoCita }, (err, cita) => {
     if (err) {
       res.status(500).json({
         ok: false,
@@ -105,17 +106,17 @@ router.get("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
     } else {
       res.status(200).json({
         ok: true,
-        cita: cita[0],
+        cita: cita,
       });
     }
   });
 });
 
-router.put("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
+router.put("/api/citas/:codigoCita", isAuthenticated, isAdmin, (req, res) => {
   if (!validar(req.body)){
     res.status(500).json({
       ok: false,
-      mensaje: "Datos inválidos",
+      message: "Datos inválidos",
     });
     return;
   }
@@ -145,6 +146,16 @@ router.put("/api/citas/:codigoCita", isAuthenticated, (req, res) => {
 });
 
 router.delete("/api/citas/paciente/:dni", isAuthenticated, (req, res) => {
+  if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+    res.status(401).json({
+      ok: false,
+      err: {
+        message: "Unauthorized",
+      },
+    });
+    return;
+  }
+
   DbCitas.find(
     {
       dni: req.params.dni,
@@ -218,6 +229,16 @@ router.get(
   "/api/citasProgramadas/user/dni/:dni/:min",
   isAuthenticated,
   (req, res) => {
+    if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+      res.status(401).json({
+        ok: false,
+        err: {
+          message: "Unauthorized",
+        },
+      });
+      return;
+    }
+
     let min = req.params.min;
 
     let data = DbCitas.find({ dni: req.params.dni, atendido: false })
@@ -237,6 +258,16 @@ router.get(
   "/api/citasRegistro/user/dni/:dni/:min",
   isAuthenticated,
   (req, res) => {
+    if (req.user.dni !== "1" && req.params.dni !== req.user.dni) {
+      res.status(401).json({
+        ok: false,
+        err: {
+          message: "Unauthorized",
+        },
+      });
+      return;
+    }
+
     let min = req.params.min;
 
     let data = DbCitas.find({ dni: req.params.dni, atendido: true })

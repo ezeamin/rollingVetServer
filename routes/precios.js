@@ -27,7 +27,7 @@ router.put("/api/precios", isAuthenticated, isAdmin, (req, res) => {
   if (!validar(req.body)){
     res.status(500).json({
       ok: false,
-      mensaje: "Datos inválidos",
+      message: "Datos inválidos",
     });
     return;
   }

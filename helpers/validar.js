@@ -2,15 +2,16 @@ function validar(datos) {
   for (let i = 0; i < Object.keys(datos).length; i++) {
     let valor = Object.values(datos)[i];
 
+    //console.log(valor);
     switch (Object.keys(datos)[i]) {
       case "dni":
-        if (valor.length > 8 || valor.length < 7) {
+        if (!/^\d{7,8}$/i.test(valor) || valor <= 0) {
           return false;
         }
         break;
       case "nombre":
       case "apellido":
-        if (valor.length > 20 || valor.length < 2) {
+        if (!validateString(valor) || valor.length > 20 || valor.length < 2) {
           return false;
         }
         break;
@@ -32,8 +33,8 @@ function validar(datos) {
           return false;
         }
         break;
-      case "precio":{
-        if (isNaN(valor) || valor.trim() === "" || Number.parseFloat(valor) < 0 || Number.parseFloat(valor) > 100000) {
+      case "precio": {
+        if (!/^[0-9]{1,6}$/i.test(valor)) {
           return false;
         }
       }
@@ -49,6 +50,11 @@ function validar(datos) {
   }
 
   return true;
+}
+
+function validateString(str) {
+  const re = /^[A-Za-z\sáéíóú]+$/;
+  return re.test(str) ? true : false;
 }
 
 module.exports = validar;
